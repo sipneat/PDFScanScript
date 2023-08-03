@@ -228,7 +228,7 @@ def file_rename(newFile):
     if nameFlag and docFlag:
         signedPage(pages[pageNumber])
 
-    docName = finalDate + " " + finalClient + finalDoc + finalSign
+    docName = finalDate + " " + finalClient + " " + finalDoc + " " + finalSign
     docName = docName.strip()
     print(docName)
     os.remove(pathForTemps + "\\test_pdf.txt")
