@@ -10,6 +10,7 @@ newFile = []
 pathToWatch = os.getenv("WATCH_PATH")
 pathForTemps = pathToWatch
 
+
 # Function: main
 # Description: Watches a directory for changes and calls file_rename under certain conditions
 def main():
@@ -23,6 +24,7 @@ def main():
             newFile = list(set(new) - set(old))
             if len(newFile) != 1:
                 print("File removed")
+                new = os.listdir(pathToWatch)
                 old = new
                 time.sleep(2)
                 continue
@@ -32,16 +34,19 @@ def main():
                 start_time = time.time()
                 file_rename(newFile[0])
                 print("--- %s seconds ---" % (time.time() - start_time))
+                new = os.listdir(pathToWatch)
                 old = new
                 time.sleep(2)
                 continue
             else:
                 print("Not a pdf")
+                new = os.listdir(pathToWatch)
                 old = new
                 time.sleep(2)
                 continue
         else:
             print("No changes")
             time.sleep(5)
+
 
 main()

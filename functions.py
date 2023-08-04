@@ -14,16 +14,19 @@ load_dotenv()
 # Global Variables
 pytesseract.pytesseract.tesseract_cmd = os.getenv("TESSERACT_PATH")
 pathToWatch = os.getenv("WATCH_PATH")
-pathForTemps = pathToWatch
+pathForTemps = os.getenv("TEMP_PATH")
 dbPath = os.getenv("DB_PATH")
 signaturePath = os.getenv("SIGNATURE_PATH")
+stampPath = os.getenv("STAMP_PATH")
 clients = []
 clientNames = []
 keywords = []
 docNames = []
-cropY = []
-cropX = []
-page = []
+signY = []
+signX = []
+stampY = []
+stampX = []
+signPage = []
 pageNumber = 0
 nameFlag, docFlag, signFlag = False, False, True
 docName = ""
@@ -32,10 +35,11 @@ finalDoc = ""
 finalSign = ""
 finalDate = time.strftime("%Y-%m-%d")
 
+
 # Function: dbCheck
 # Description: Checks the csv files in the DBs folder and populates the lists
 def dbCheck():
-    global clients, clientNames, keywords, docNames, cropY, cropX
+    global clients, clientNames, keywords, docNames, signY, signX, signPage, stampY, stampX
     with open(dbPath + "\\clients.csv", "r") as f:
         next(f)
         for line in f:
@@ -51,29 +55,35 @@ def dbCheck():
             keywords[-1] = keywords[-1].replace("\n", "")
             docNames.append(line.split(",")[1])
             docNames[-1] = docNames[-1].replace("\n", "")
-            cropY.append(line.split(",")[2])
-            cropY[-1] = cropY[-1].replace("\n", "")
-            cropX.append(line.split(",")[3])
-            cropX[-1] = cropX[-1].replace("\n", "")
-            page.append(line.split(",")[4])
-            page[-1] = page[-1].replace("\n", "")
+            signY.append(line.split(",")[2])
+            signY[-1] = signY[-1].replace("\n", "")
+            signX.append(line.split(",")[3])
+            signX[-1] = signX[-1].replace("\n", "")
+            stampY.append(line.split(",")[4])
+            stampY[-1] = stampY[-1].replace("\n", "")
+            stampX.append(line.split(",")[5])
+            stampX[-1] = stampX[-1].replace("\n", "")
+            signPage.append(line.split(",")[6])
+            signPage[-1] = signPage[-1].replace("\n", "")
     f.close()
     return
+
 
 # Function: convert_to_text
 # Description: Converts a pdf file to a text file
 def convert_to_text(page):
-    text = pytesseract.image_to_string(page, lang='eng')
+    text = pytesseract.image_to_string(page, lang="eng")
 
-    with open(pathForTemps + '\\test_pdf.txt', 'w') as f:
+    with open(pathForTemps + "\\test_pdf.txt", "w") as f:
         f.write(text)
     f.close()
     return
 
+
 # Function: firstPage
 # Description: Opens the first page of a pdf to find the client and document type
 def firstPage(fpage):
-    global nameFlag, docFlag, finalClient, finalDoc, finalDate, page, pageNumber, finalSign, signFlag
+    global nameFlag, docFlag, finalClient, finalDoc, finalDate, signPage, pageNumber, finalSign, signFlag, stampY, stampX
 
     convert_to_text(fpage)
     with open(pathForTemps + "\\test_pdf.txt", "r") as f:
@@ -82,7 +92,6 @@ def firstPage(fpage):
                 break
             lineCount = 0
             f.seek(0)
-            line = f.readline(1)
             for line in f:
                 if lineCount >= 40:
                     break
@@ -96,13 +105,12 @@ def firstPage(fpage):
             print("Client Not Found")
             f.close()
             return
-        
+
         for x in keywords:
             if docFlag:
                 break
             lineCount = 0
             f.seek(0)
-            line = f.readline(1)
             for line in f:
                 if lineCount >= 50:
                     break
@@ -111,7 +119,7 @@ def firstPage(fpage):
                     print("Doc Found")
                     docFlag = True
                     finalDoc = docNames[keywords.index(x)]
-                    pageNumber = int(page[keywords.index(x)])
+                    pageNumber = int(signPage[keywords.index(x)])
                     break
         if not docFlag:
             print("Doc Not Found")
@@ -123,17 +131,19 @@ def firstPage(fpage):
     img = np.array(fpage)
 
     img = cv.resize(img, (1000, 1000))
-    y = 55
-    x = 650
+    y = int(stampY[docNames.index(finalDoc)])
+    x = int(stampX[docNames.index(finalDoc)])
     h = 225
     w = 300
-    crop_img = img[y:y+h, x:x+w]
+    crop_img = img[y : y + h, x : x + w]
 
-    i = cv.cvtColor(cv.imread(signaturePath + '\\stamp.jpg'),cv.COLOR_BGR2RGB)
-    bad_image = cv.resize(cv.cvtColor(i.copy(),cv.COLOR_BGR2GRAY),(300,100))
-    original_image = cv.resize(cv.cvtColor(crop_img.copy(),cv.COLOR_BGR2GRAY),(300,100))
-    ssimScore = ssim(original_image,bad_image)
-    print("Stamp Score: " + str(ssim(original_image,bad_image)))
+    i = cv.cvtColor(cv.imread(stampPath + "\\" + finalDoc + ".jpg"), cv.COLOR_BGR2RGB)
+    bad_image = cv.resize(cv.cvtColor(i.copy(), cv.COLOR_BGR2GRAY), (300, 100))
+    original_image = cv.resize(
+        cv.cvtColor(crop_img.copy(), cv.COLOR_BGR2GRAY), (300, 100)
+    )
+    ssimScore = ssim(original_image, bad_image)
+    print("Stamp Score: " + str(ssim(original_image, bad_image)))
 
     if ssimScore <= Decimal(0.8):
         print("Stamp is a match!")
@@ -143,17 +153,25 @@ def firstPage(fpage):
         print("No stamp")
     return
 
+
 # Function: signedPage
 # Description: Opens the signature page of a pdf to find the date and if a signature is present
 def signedPage(spage):
-    global finalSign, finalDoc, finalDate, cropY, cropX
-    
+    global finalSign, finalDoc, finalDate, signY, signX, signFlag
+
     convert_to_text(spage)
     with open(pathForTemps + "\\test_pdf.txt", "r") as f:
         global dateFlag
+        for _ in zip(range(35), f):
+            pass
         dateFlag = False
-        line = f.readline(1)
-        pattern = r"[\d]{1,2}\/[\d]{1,2}\/[\d]{2,4}" + "|" + r"[\d]{1,2}\-[\d]{1,2}\-[\d]{2,4}" + "|" + r"[\d]{1,2}\.[\d]{1,2}\.[\d]{2,4}"
+        pattern = (
+            r"[\d]{1,2}\/[\d]{1,2}\/[\d]{2,4}"
+            + "|"
+            + r"[\d]{1,2}\-[\d]{1,2}\-[\d]{2,4}"
+            + "|"
+            + r"[\d]{1,2}\.[\d]{1,2}\.[\d]{2,4}"
+        )
         for line in f:
             if re.search(pattern, line):
                 print("Date Found")
@@ -179,23 +197,27 @@ def signedPage(spage):
         if not dateFlag:
             print("Date Not Found")
         f.close()
-    
+
     if signFlag:
         ssimScore = 0
         img = np.array(spage)
 
         img = cv.resize(img, (1000, 1000))
-        y = int(cropY[docNames.index(finalDoc)])
-        x = int(cropX[docNames.index(finalDoc)])
+        y = int(signY[docNames.index(finalDoc)])
+        x = int(signX[docNames.index(finalDoc)])
         h = 50
         w = 300
-        crop_img = img[y:y+h, x:x+w]
+        crop_img = img[y : y + h, x : x + w]
 
-        i = cv.cvtColor(cv.imread(signaturePath + '\\' + finalDoc + '.jpg'),cv.COLOR_BGR2RGB)
-        bad_image = cv.resize(cv.cvtColor(i.copy(),cv.COLOR_BGR2GRAY),(300,100))
-        original_image = cv.resize(cv.cvtColor(crop_img.copy(),cv.COLOR_BGR2GRAY),(300,100))
-        ssimScore = ssim(original_image,bad_image)
-        print("Signature Score: " + str(ssim(original_image,bad_image)))
+        i = cv.cvtColor(
+            cv.imread(signaturePath + "\\" + finalDoc + ".jpg"), cv.COLOR_BGR2RGB
+        )
+        bad_image = cv.resize(cv.cvtColor(i.copy(), cv.COLOR_BGR2GRAY), (300, 100))
+        original_image = cv.resize(
+            cv.cvtColor(crop_img.copy(), cv.COLOR_BGR2GRAY), (300, 100)
+        )
+        ssimScore = ssim(original_image, bad_image)
+        print("Signature Score: " + str(ssim(original_image, bad_image)))
 
         if ssimScore <= Decimal(0.8):
             print("Signature is a match!")
@@ -204,9 +226,20 @@ def signedPage(spage):
             print("No signature match")
     return
 
+
 def destroy():
-    global clients, clientNames, keywords, docNames, cropY, cropX, page, nameFlag, docFlag, docName, finalClient, finalDoc, finalSign, finalDate, pageNumber, signFlag
-    clients, clientNames, keywords, docNames, cropY, cropX, page = [], [], [], [], [], [], []
+    global clients, clientNames, keywords, docNames, signY, signX, signPage, nameFlag, docFlag, docName, finalClient, finalDoc, finalSign, finalDate, pageNumber, signFlag, stampY, stampX
+    clients, clientNames, keywords, docNames, signY, signX, stampY, stampX, signPage = (
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+    )
     pageNumber = 0
     nameFlag, docFlag, signFlag = False, False, True
     docName = ""
@@ -215,6 +248,7 @@ def destroy():
     finalSign = ""
     finalDate = time.strftime("%Y-%m-%d")
     return
+
 
 # Function: file_rename
 # Description: Renames a file based on the name of client and type of document of the file
@@ -233,8 +267,8 @@ def file_rename(newFile):
     print(docName)
     os.remove(pathForTemps + "\\test_pdf.txt")
     if nameFlag and docFlag:
-        src = pathToWatch + '\\' + newFile
-        des = pathToWatch + '\\' + docName + '.pdf'
+        src = pathToWatch + "\\" + newFile
+        des = pathToWatch + "\\" + docName + ".pdf"
         os.rename(src, des)
         destroy()
         return
