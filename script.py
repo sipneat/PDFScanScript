@@ -10,7 +10,6 @@ newFile = []
 pathToWatch = os.getenv("WATCH_PATH")
 pathForTemps = pathToWatch
 
-
 # Function: main
 # Description: Watches a directory for changes and calls file_rename under certain conditions
 def main():
@@ -47,6 +46,5 @@ def main():
         else:
             print("No changes")
             time.sleep(5)
-
 
 main()
