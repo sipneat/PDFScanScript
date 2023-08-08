@@ -10,12 +10,14 @@ newFile = []
 pathToWatch = os.getenv("WATCH_PATH")
 pathForTemps = pathToWatch
 
+
 # Function: main
 # Description: Watches a directory for changes and calls file_rename under certain conditions
 def main():
     print("Watching " + pathToWatch + " for changes")
     old = os.listdir(pathToWatch)
     print(old)
+    count = 0
     while 1:
         new = os.listdir(pathToWatch)
         if len(new) != len(old):
@@ -44,7 +46,13 @@ def main():
                 time.sleep(2)
                 continue
         else:
-            print("No changes")
-            time.sleep(5)
+            count += 1
+            if count > 5:
+                count = 0
+                print("No Changes")
+                time.sleep(5)
+            else:
+                time.sleep(5)
+
 
 main()
