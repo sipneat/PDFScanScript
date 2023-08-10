@@ -227,6 +227,8 @@ def signedPage(spage):
     return
 
 
+# Function: destroy
+# Description: Resets all global variables
 def destroy():
     global clients, clientNames, keywords, docNames, signY, signX, signPage, nameFlag, docFlag, docName, finalClient, finalDoc, finalSign, finalDate, pageNumber, signFlag, stampY, stampX
     clients, clientNames, keywords, docNames, signY, signX, stampY, stampX, signPage = (
@@ -252,8 +254,8 @@ def destroy():
 
 # Function: file_rename
 # Description: Renames a file based on the name of client and type of document of the file
-# Format: YYYY-MM-DD CLIENT_NAME DOCUMENT_TYPE (S)
-def file_rename(newFile):
+# Format: YYYY-MM-DD CLIENT_NAME DOCUMENT_TYPE (S/F)
+def fileRename(newFile):
     global docName, nameFlag, docFlag, finalClient, finalDoc, finalSign, finalDate, pageNumber
     dbCheck()
     pages = pdf2image.convert_from_path(pathToWatch + "\\" + newFile, 500)
@@ -274,4 +276,5 @@ def file_rename(newFile):
         return
     else:
         print("File not renamed")
+        destroy()
         return
