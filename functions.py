@@ -230,6 +230,7 @@ def signedPage(spage):
             finalSign = "(S)"
         else:
             print("No signature match")
+            finalSign = "(D)"
     return
 
 
