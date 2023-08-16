@@ -60,7 +60,7 @@ def fileWatch():
                 continue
         else:
             count += 1
-            if count > 5:
+            if count > 720:
                 count = 0
                 print("No Changes")
                 time.sleep(5)
