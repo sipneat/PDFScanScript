@@ -137,7 +137,10 @@ def firstPage(fpage):
     w = 300
     crop_img = img[y : y + h, x : x + w]
 
-    i = cv.cvtColor(cv.imread(stampPath + "\\" + finalDoc + ".jpg"), cv.COLOR_BGR2RGB)
+    i = cv.cvtColor(
+        cv.imread(stampPath + "\\" + keywords[docNames.index(finalDoc)] + ".jpg"),
+        cv.COLOR_BGR2RGB,
+    )
     bad_image = cv.resize(cv.cvtColor(i.copy(), cv.COLOR_BGR2GRAY), (300, 100))
     original_image = cv.resize(
         cv.cvtColor(crop_img.copy(), cv.COLOR_BGR2GRAY), (300, 100)
@@ -164,7 +167,7 @@ def signedPage(spage):
         global dateFlag
         for _ in zip(range(35), f):
             pass
-        dateFlag = False
+        dateFlag, oldFlag = False, False
         pattern = (
             r"[\d]{1,2}\/[\d]{1,2}\/[\d]{2,4}"
             + "|"
@@ -210,7 +213,10 @@ def signedPage(spage):
         crop_img = img[y : y + h, x : x + w]
 
         i = cv.cvtColor(
-            cv.imread(signaturePath + "\\" + finalDoc + ".jpg"), cv.COLOR_BGR2RGB
+            cv.imread(
+                signaturePath + "\\" + keywords[docNames.index(finalDoc)] + ".jpg"
+            ),
+            cv.COLOR_BGR2RGB,
         )
         bad_image = cv.resize(cv.cvtColor(i.copy(), cv.COLOR_BGR2GRAY), (300, 100))
         original_image = cv.resize(
