@@ -32,6 +32,7 @@ def fileWatch():
     print("Watching " + pathToWatch + " for changes")
     old = os.listdir(pathToWatch)
     print(old)
+    new = old
     count = 0
     while 1:
         new = os.listdir(pathToWatch)
@@ -40,6 +41,13 @@ def fileWatch():
             newFile = list(set(new) - set(old))
             if len(newFile) != 1:
                 print("File removed")
+                new = os.listdir(pathToWatch)
+                old = new
+                time.sleep(2)
+                continue
+            temp = newFile[0].split(" ")
+            if len(temp) != 1:
+                print("File has already been renamed")
                 new = os.listdir(pathToWatch)
                 old = new
                 time.sleep(2)
@@ -63,8 +71,12 @@ def fileWatch():
             if count > 720:
                 count = 0
                 print("No Changes")
+                new = os.listdir(pathToWatch)
+                old = new
                 time.sleep(5)
             else:
+                new = os.listdir(pathToWatch)
+                old = new
                 time.sleep(5)
 
 
