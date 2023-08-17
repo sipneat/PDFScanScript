@@ -96,6 +96,7 @@ def firstPage(fpage):
                 if lineCount >= 40:
                     break
                 lineCount += 1
+                line = line.upper()
                 if x in line:
                     print("Client Found")
                     nameFlag = True
