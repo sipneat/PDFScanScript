@@ -15,6 +15,7 @@ load_dotenv()
 pytesseract.pytesseract.tesseract_cmd = os.getenv("TESSERACT_PATH")
 pathToWatch = os.getenv("WATCH_PATH")
 pathForTemps = os.getenv("TEMP_PATH")
+clientPath = os.getenv("CLIENT_PATH")
 dbPath = os.getenv("DB_PATH")
 signaturePath = os.getenv("SIGNATURE_PATH")
 stampPath = os.getenv("STAMP_PATH")
@@ -39,15 +40,17 @@ finalDate = time.strftime("%Y-%m-%d")
 # Function: dbCheck
 # Description: Checks the csv files in the DBs folder and populates the lists
 def dbCheck():
-    global clients, clientNames, keywords, docNames, signY, signX, signPage, stampY, stampX
-    with open(dbPath + "\\clients.csv", "r") as f:
-        next(f)
-        for line in f:
-            clients.append(line.split(",")[0])
-            clients[-1] = clients[-1].replace("\n", "")
-            clientNames.append(line.split(",")[1])
-            clientNames[-1] = clientNames[-1].replace("\n", "")
-    f.close()
+    global clientPath, clients, clientNames, keywords, docNames, signY, signX, signPage, stampY, stampX
+
+    clientFileNames = os.listdir(clientPath)
+    for x in clientFileNames:
+        if os.path.isfile(clientPath + "\\" + x):
+            continue
+        clients.append(x.split(",")[0])
+        firstInitial = x.split(",")[1]
+        firstInitial = firstInitial.strip()
+        firstInitial = firstInitial[0]
+        clientNames.append(clients[-1] + " " + firstInitial)
     with open(dbPath + "\\docs.csv", "r") as f:
         next(f)
         for line in f:
