@@ -168,7 +168,7 @@ def signedPage(spage):
         global dateFlag
         for _ in zip(range(35), f):
             pass
-        dateFlag, oldFlag = False, False
+        dateFlag = False
         pattern = (
             r"[\d]{1,2}\/[\d]{1,2}\/[\d]{2,4}"
             + "|"
@@ -179,6 +179,7 @@ def signedPage(spage):
         for line in f:
             if re.search(pattern, line):
                 print("Date Found")
+                oldFlag = False
                 temp = re.search(pattern, line).group()
                 temp = temp.split("/")
                 if len(temp) == 1:
