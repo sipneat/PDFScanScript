@@ -271,7 +271,12 @@ def destroy():
 def fileRename(newFile):
     global docName, nameFlag, docFlag, finalClient, finalDoc, finalSign, finalDate, pageNumber
     dbCheck()
-    pages = pdf2image.convert_from_path(pathToWatch + "\\" + newFile, 500)
+    try:
+        pages = pdf2image.convert_from_path(pathToWatch + "\\" + newFile, 500)
+    except:
+        print("ERROR: File is corrupted")
+        destroy()
+        return
 
     firstPage(pages[0])
     if nameFlag and docFlag:
