@@ -191,6 +191,7 @@ def signedPage(spage):
                 if int(temp[2]) <= (int(time.strftime("%Y")) - 1):
                     oldFlag = True
                 if oldFlag:
+                    print("Date is too old: " + temp[2])
                     continue
                 if len(temp[0]) == 1:
                     temp[0] = "0" + temp[0]
