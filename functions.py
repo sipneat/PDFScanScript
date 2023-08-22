@@ -141,10 +141,16 @@ def firstPage(fpage):
     w = 300
     crop_img = img[y : y + h, x : x + w]
 
-    i = cv.cvtColor(
-        cv.imread(stampPath + "\\" + keywords[docNames.index(finalDoc)] + ".jpg"),
-        cv.COLOR_BGR2RGB,
-    )
+    try:
+        i = cv.cvtColor(
+            cv.imread(stampPath + "\\" + keywords[docNames.index(finalDoc)] + ".jpg"),
+            cv.COLOR_BGR2RGB,
+        )
+    except:
+        print("ERROR: Stamp file is incorrect, maybe name is wrong?")
+        destroy()
+        return
+
     bad_image = cv.resize(cv.cvtColor(i.copy(), cv.COLOR_BGR2GRAY), (300, 100))
     original_image = cv.resize(
         cv.cvtColor(crop_img.copy(), cv.COLOR_BGR2GRAY), (300, 100)
@@ -218,12 +224,18 @@ def signedPage(spage):
         w = 300
         crop_img = img[y : y + h, x : x + w]
 
-        i = cv.cvtColor(
-            cv.imread(
-                signaturePath + "\\" + keywords[docNames.index(finalDoc)] + ".jpg"
-            ),
-            cv.COLOR_BGR2RGB,
-        )
+        try:
+            i = cv.cvtColor(
+                cv.imread(
+                    signaturePath + "\\" + keywords[docNames.index(finalDoc)] + ".jpg"
+                ),
+                cv.COLOR_BGR2RGB,
+            )
+        except:
+            print("ERROR: Signature file is incorrect, maybe name is wrong?")
+            destroy()
+            return
+
         bad_image = cv.resize(cv.cvtColor(i.copy(), cv.COLOR_BGR2GRAY), (300, 100))
         original_image = cv.resize(
             cv.cvtColor(crop_img.copy(), cv.COLOR_BGR2GRAY), (300, 100)
