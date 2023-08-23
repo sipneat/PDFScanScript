@@ -151,9 +151,9 @@ def firstPage(fpage):
         destroy()
         return
 
-    bad_image = cv.resize(cv.cvtColor(i.copy(), cv.COLOR_BGR2GRAY), (300, 100))
+    bad_image = cv.resize(cv.cvtColor(i.copy(), cv.COLOR_BGR2GRAY), (300, 225))
     original_image = cv.resize(
-        cv.cvtColor(crop_img.copy(), cv.COLOR_BGR2GRAY), (300, 100)
+        cv.cvtColor(crop_img.copy(), cv.COLOR_BGR2GRAY), (300, 225)
     )
     ssimScore = ssim(original_image, bad_image)
     print("Stamp Score: " + str(ssim(original_image, bad_image)))
@@ -236,9 +236,9 @@ def signedPage(spage):
             destroy()
             return
 
-        bad_image = cv.resize(cv.cvtColor(i.copy(), cv.COLOR_BGR2GRAY), (300, 100))
+        bad_image = cv.resize(cv.cvtColor(i.copy(), cv.COLOR_BGR2GRAY), (300, 50))
         original_image = cv.resize(
-            cv.cvtColor(crop_img.copy(), cv.COLOR_BGR2GRAY), (300, 100)
+            cv.cvtColor(crop_img.copy(), cv.COLOR_BGR2GRAY), (300, 50)
         )
         ssimScore = ssim(original_image, bad_image)
         print("Signature Score: " + str(ssim(original_image, bad_image)))
@@ -287,6 +287,9 @@ def fileRename(newFile):
         pages = pdf2image.convert_from_path(pathToWatch + "\\" + newFile, 500)
     except:
         print("ERROR: File is corrupted")
+        src = pathToWatch + "\\" + newFile
+        des = pathToWatch + "\\" + newFile + " (CORRUPT).pdf"
+        os.rename(src, des)
         destroy()
         return
 
@@ -299,11 +302,19 @@ def fileRename(newFile):
     print(docName)
     os.remove(pathForTemps + "\\test_pdf.txt")
     if nameFlag and docFlag:
-        src = pathToWatch + "\\" + newFile
-        des = pathToWatch + "\\" + docName + ".pdf"
-        os.rename(src, des)
-        destroy()
-        return
+        try:
+            src = pathToWatch + "\\" + newFile
+            des = pathToWatch + "\\" + docName + ".pdf"
+            os.rename(src, des)
+            destroy()
+            return
+        except:
+            print("ERROR: File already exists")
+            src = pathToWatch + "\\" + newFile
+            des = pathToWatch + "\\" + newFile + " (EXISTS).pdf"
+            os.rename(src, des)
+            destroy()
+            return
     else:
         print("File not renamed")
         destroy()
