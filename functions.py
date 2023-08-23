@@ -188,7 +188,7 @@ def signedPage(spage):
         for line in f:
             if re.search(pattern, line):
                 print("Date Found")
-                oldFlag = False
+                oldFlag, newFlag = False, False
                 temp = re.search(pattern, line).group()
                 temp = temp.split("/")
                 if len(temp) == 1:
@@ -197,10 +197,15 @@ def signedPage(spage):
                     temp = temp[0].split(".")
                 if len(temp[2]) == 2:
                     temp[2] = "20" + temp[2]
+                if int(temp[2] + temp[0] + temp[1]) > int(finalDate.replace("-", "")):
+                    newFlag = True
                 if int(temp[2]) <= (int(time.strftime("%Y")) - 1):
                     oldFlag = True
                 if oldFlag:
                     print("Date is too old: " + temp[2])
+                    continue
+                if newFlag:
+                    print("Date is too new: " + temp[2] + "-" + temp[0] + "-" + temp[1])
                     continue
                 if len(temp[0]) == 1:
                     temp[0] = "0" + temp[0]
@@ -311,7 +316,7 @@ def fileRename(newFile):
         except:
             print("ERROR: File already exists")
             src = pathToWatch + "\\" + newFile
-            des = pathToWatch + "\\" + newFile + " (EXISTS).pdf"
+            des = src.replace(".pdf", " (EXISTS).pdf")
             os.rename(src, des)
             destroy()
             return
