@@ -99,7 +99,7 @@ def firstPage(fpage):
             lineCount = 0
             f.seek(0)
             for line in f:
-                if lineCount >= 40:  # Only search the first 40 lines of the pdf
+                if lineCount >= 45:  # Only search the first 45 lines of the pdf
                     break
                 lineCount += 1
                 line = (
@@ -128,6 +128,10 @@ def firstPage(fpage):
                     print("Doc Found")
                     docFlag = True
                     finalDoc = docNames[keywords.index(x)]
+                    if finalDoc == "IC":
+                        f.close()
+                        signFlag = False
+                        return
                     pageNumber = int(signPage[keywords.index(x)])
                     break
         if not docFlag:
@@ -313,7 +317,7 @@ def fileRename(newFile):
     dbCheck()
     try:
         pages = pdf2image.convert_from_path(
-            pathToWatch + "\\" + newFile, 500
+            pathToWatch + "\\" + newFile, 500, last_page=5
         )  # Convert the pdf to images
     except:
         print("ERROR: File is corrupted")
