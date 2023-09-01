@@ -315,57 +315,23 @@ def destroy():
 def fileRename(newFile):
     global docName, nameFlag, docFlag, finalClient, finalDoc, finalSign, finalDate, pageNumber
     dbCheck()
-    try:
-        pages = pdf2image.convert_from_path(
-            pathToWatch + "\\" + newFile, 500, last_page=5
-        )  # Convert the pdf to images
-    except:
-        print("ERROR: File is corrupted")
-        src = pathToWatch + "\\" + newFile
-        des = pathToWatch + "\\" + newFile + " (CORRUPT).pdf"
+    pages = pdf2image.convert_from_path(pathToWatch + "\\" + newFile, 500)
+
+    firstPage(pages[0])
+    if nameFlag and docFlag:
+        signedPage(pages[pageNumber])
+
+    docName = finalDate + " " + finalClient + finalDoc + finalSign
+    docName = docName.strip()
+    print(docName)
+    os.remove(pathForTemps + "\\test_pdf.txt")
+    if nameFlag and docFlag:
+        src = pathToWatch + '\\' + newFile
+        des = pathToWatch + '\\' + docName + '.pdf'
         os.rename(src, des)
         destroy()
         return
-
-    firstPage(pages[0])
-    if (
-        nameFlag and docFlag
-    ):  # If the client and document type are not found on the first page, the signature page is not needed
-        try:
-            signedPage(pages[pageNumber])
-        except:
-            try:
-                signedPage(pages[0])
-            except:
-                print("ERROR: Index for signature page is out of range")
-                destroy()
-                return
-
-    docName = (
-        finalDate + " " + finalClient + " " + finalDoc + " " + finalSign
-    )  # Combine the variables into a string
-    docName = docName.strip()  # Remove any extra spaces
-    print(docName)
-    os.remove(pathForTemps + "\\test_pdf.txt")  # Delete the temporary text file
-    if (
-        nameFlag and docFlag
-    ):  # If the client and document type are found, rename the file
-        try:
-            src = pathToWatch + "\\" + newFile
-            des = pathToWatch + "\\" + docName + ".pdf"
-            os.rename(src, des)  # Rename the file
-            destroy()
-            return
-        except:
-            print("ERROR: File already exists")
-            src = pathToWatch + "\\" + newFile
-            des = src.replace(".pdf", " (EXISTS).pdf")
-            os.rename(
-                src, des
-            )  # If the file already exists, rename the file with (EXISTS) appended to the end
-            destroy()
-            return
-    else:  # If the client and document type are not found, the file cannot be renamed
+    else:
         print("File not renamed")
         destroy()
         return
