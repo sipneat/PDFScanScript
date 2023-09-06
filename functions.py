@@ -21,6 +21,7 @@ signaturePath = os.getenv("SIGNATURE_PATH")
 stampPath = os.getenv("STAMP_PATH")
 clients = []
 clientNames = []
+codes = []
 keywords = []
 docNames = []
 signY = []
@@ -40,7 +41,7 @@ finalDate = time.strftime("%Y-%m-%d")
 # Function: dbCheck
 # Description: Checks the csv files in the DBs folder and populates the global variables for use
 def dbCheck():
-    global clientPath, clients, clientNames, keywords, docNames, signY, signX, signPage, stampY, stampX
+    global clientPath, clients, clientNames, codes, keywords, docNames, signY, signX, signPage, stampY, stampX
 
     # Clients are pulled from the client directory instead of a csv file. This ensures that the client names are always up to date
     clientFileNames = os.listdir(clientPath)
@@ -57,19 +58,21 @@ def dbCheck():
     with open(dbPath + "\\docs.csv", "r") as f:
         next(f)
         for line in f:
-            keywords.append(line.split(",")[0])
+            codes.append(line.split(",")[0])
+            codes[-1] = codes[-1].replace("\n", "")
+            keywords.append(line.split(",")[1])
             keywords[-1] = keywords[-1].replace("\n", "")
-            docNames.append(line.split(",")[1])
+            docNames.append(line.split(",")[2])
             docNames[-1] = docNames[-1].replace("\n", "")
-            signY.append(line.split(",")[2])
+            signY.append(line.split(",")[3])
             signY[-1] = signY[-1].replace("\n", "")
-            signX.append(line.split(",")[3])
+            signX.append(line.split(",")[4])
             signX[-1] = signX[-1].replace("\n", "")
-            stampY.append(line.split(",")[4])
+            stampY.append(line.split(",")[5])
             stampY[-1] = stampY[-1].replace("\n", "")
-            stampX.append(line.split(",")[5])
+            stampX.append(line.split(",")[6])
             stampX[-1] = stampX[-1].replace("\n", "")
-            signPage.append(line.split(",")[6])
+            signPage.append(line.split(",")[7])
             signPage[-1] = signPage[-1].replace("\n", "")
     f.close()
     return
@@ -105,7 +108,7 @@ def firstPage(fpage):
                 line = (
                     line.upper()
                 )  # Convert the line to uppercase to make the search case insensitive
-                if x in line:
+                if x in line and "SHERLOCK" not in line:
                     print("Client Found")
                     nameFlag = True
                     finalClient = clientNames[clients.index(x)]
@@ -114,26 +117,48 @@ def firstPage(fpage):
             print("Client Not Found")
             f.close()
             return
-
-        for x in keywords:  # Same process as above but for document type
+        
+        for x in codes: # Same process as above but for document type based on unique code
             if docFlag:
                 break
             lineCount = 0
             f.seek(0)
             for line in f:
-                if lineCount >= 50:
+                if lineCount >= 5:
                     break
                 lineCount += 1
                 if x in line:
                     print("Doc Found")
                     docFlag = True
-                    finalDoc = docNames[keywords.index(x)]
+                    finalDoc = docNames[codes.index(x)]
                     if finalDoc == "IC":
                         f.close()
                         signFlag = False
                         return
-                    pageNumber = int(signPage[keywords.index(x)])
+                    pageNumber = int(signPage[codes.index(x)])
                     break
+
+        if not docFlag:
+            for x in keywords:  # Same process as above but for document type based on name
+                if docFlag:
+                    break
+                lineCount = 0
+                f.seek(0)
+                for line in f:
+                    if lineCount >= 50:
+                        break
+                    lineCount += 1
+                    if x in line and "PETITIONER" not in line:
+                        print("Doc Found")
+                        docFlag = True
+                        finalDoc = docNames[keywords.index(x)]
+                        if finalDoc == "IC":
+                            f.close()
+                            signFlag = False
+                            return
+                        pageNumber = int(signPage[keywords.index(x)])
+                        break
+
         if not docFlag:
             print("Doc Not Found")
             f.close()
@@ -287,8 +312,9 @@ def signedPage(spage):
 # Function: destroy
 # Description: Resets all global variables
 def destroy():
-    global clients, clientNames, keywords, docNames, signY, signX, signPage, nameFlag, docFlag, docName, finalClient, finalDoc, finalSign, finalDate, pageNumber, signFlag, stampY, stampX
-    clients, clientNames, keywords, docNames, signY, signX, stampY, stampX, signPage = (
+    global clients, clientNames, codes, keywords, docNames, signY, signX, signPage, nameFlag, docFlag, docName, finalClient, finalDoc, finalSign, finalDate, pageNumber, signFlag, stampY, stampX
+    clients, clientNames, codes, keywords, docNames, signY, signX, stampY, stampX, signPage = (
+        [],
         [],
         [],
         [],
