@@ -105,10 +105,7 @@ def firstPage(fpage):
                 if lineCount >= 45:  # Only search the first 45 lines of the pdf
                     break
                 lineCount += 1
-                line = (
-                    line.upper()
-                )  # Convert the line to uppercase to make the search case insensitive
-                if x in line and "SHERLOCK" not in line:
+                if x in line.upper() and "SHERLOCK" not in line.upper(): # Convert the line to uppercase to make the search case insensitive
                     print("Client Found")
                     nameFlag = True
                     finalClient = clientNames[clients.index(x)]
@@ -127,7 +124,7 @@ def firstPage(fpage):
                 if lineCount >= 5:
                     break
                 lineCount += 1
-                if x in line:
+                if x in line.upper():
                     print("Doc Found")
                     docFlag = True
                     finalDoc = docNames[codes.index(x)]
@@ -148,7 +145,7 @@ def firstPage(fpage):
                     if lineCount >= 50:
                         break
                     lineCount += 1
-                    if x in line and "PETITIONER" not in line:
+                    if x in line.upper() and "PETITIONER" not in line.upper():
                         print("Doc Found")
                         docFlag = True
                         finalDoc = docNames[keywords.index(x)]
