@@ -102,7 +102,7 @@ def firstPage(fpage):
             lineCount = 0
             f.seek(0)
             for line in f:
-                if lineCount >= 20:  # Only search the first 20 lines of the pdf
+                if lineCount >= 30:  # Only search the first 20 lines of the pdf
                     break
                 if x in line.upper() and "SHERLOCK" not in line.upper(): # Convert the line to uppercase to make the search case insensitive
                     print("Client Found")
@@ -144,7 +144,7 @@ def firstPage(fpage):
                     pass
                 lineCount = 10
                 for line in f:
-                    if lineCount >= 30:
+                    if lineCount >= 35:
                         break
                     if x in line.upper() and "PETITIONER" not in line.upper():
                         print("Doc Found via Name")
