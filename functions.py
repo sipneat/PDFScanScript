@@ -102,14 +102,14 @@ def firstPage(fpage):
             lineCount = 0
             f.seek(0)
             for line in f:
-                if lineCount >= 45:  # Only search the first 45 lines of the pdf
+                if lineCount >= 20:  # Only search the first 20 lines of the pdf
                     break
-                lineCount += 1
                 if x in line.upper() and "SHERLOCK" not in line.upper(): # Convert the line to uppercase to make the search case insensitive
                     print("Client Found")
                     nameFlag = True
                     finalClient = clientNames[clients.index(x)]
                     break
+                lineCount += 1
         if not nameFlag:  # If client is not found, the file cannot be renamed
             print("Client Not Found")
             f.close()
@@ -123,9 +123,8 @@ def firstPage(fpage):
             for line in f:
                 if lineCount >= 5:
                     break
-                lineCount += 1
                 if x in line.upper():
-                    print("Doc Found")
+                    print("Doc Found via Code")
                     docFlag = True
                     finalDoc = docNames[codes.index(x)]
                     if finalDoc == "IC":
@@ -134,19 +133,21 @@ def firstPage(fpage):
                         return
                     pageNumber = int(signPage[codes.index(x)])
                     break
+                lineCount += 1
 
         if not docFlag:
             for x in keywords:  # Same process as above but for document type based on name
                 if docFlag:
                     break
-                lineCount = 0
                 f.seek(0)
+                for _ in zip(range(10), f):  # Skip the first 35 lines of the pdf
+                    pass
+                lineCount = 10
                 for line in f:
-                    if lineCount >= 50:
+                    if lineCount >= 30:
                         break
-                    lineCount += 1
                     if x in line.upper() and "PETITIONER" not in line.upper():
-                        print("Doc Found")
+                        print("Doc Found via Name")
                         docFlag = True
                         finalDoc = docNames[keywords.index(x)]
                         if finalDoc == "IC":
@@ -155,6 +156,7 @@ def firstPage(fpage):
                             return
                         pageNumber = int(signPage[keywords.index(x)])
                         break
+                    lineCount += 1
 
         if not docFlag:
             print("Doc Not Found")
