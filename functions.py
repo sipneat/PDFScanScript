@@ -19,6 +19,7 @@ clientPath = os.getenv("CLIENT_PATH")
 dbPath = os.getenv("DB_PATH")
 signaturePath = os.getenv("SIGNATURE_PATH")
 stampPath = os.getenv("STAMP_PATH")
+redacted = os.getenv("REDACTED")
 clients = []
 clientNames = []
 codes = []
@@ -104,7 +105,7 @@ def firstPage(fpage):
             for line in f:
                 if lineCount >= 30:  # Only search the first 20 lines of the pdf
                     break
-                if x in line.upper() and "SHERLOCK" not in line.upper(): # Convert the line to uppercase to make the search case insensitive
+                if x in line.upper() and redacted not in line.upper(): # Convert the line to uppercase to make the search case insensitive
                     print("Client Found")
                     nameFlag = True
                     finalClient = clientNames[clients.index(x)]
