@@ -38,6 +38,8 @@ finalDoc = ""
 finalSign = ""
 finalDate = time.strftime("%Y-%m-%d")
 
+TEMP_TEXT_FILE = "\\test_pdf.txt"
+
 
 # Function: dbCheck
 # Description: Checks the csv files in the DBs folder and populates the global variables for use
@@ -76,7 +78,6 @@ def dbCheck():
             signPage.append(line.split(",")[7])
             signPage[-1] = signPage[-1].replace("\n", "")
     f.close()
-    return
 
 
 # Function: convert_to_text
@@ -84,10 +85,9 @@ def dbCheck():
 def convert_to_text(page):
     text = pytesseract.image_to_string(page, lang="eng")
 
-    with open(pathForTemps + "\\test_pdf.txt", "w") as f:
+    with open(pathForTemps + TEMP_TEXT_FILE, "w") as f:
         f.write(text)
     f.close()
-    return
 
 
 # Function: firstPage
@@ -182,8 +182,8 @@ def firstPage(fpage):
             cv.imread(stampPath + "\\" + keywords[docNames.index(finalDoc)] + ".jpg"),
             cv.COLOR_BGR2RGB,
         )  # Open the known bad stamp image
-    except:
-        print("ERROR: Stamp file is incorrect, maybe name is wrong?")
+    except Exception as e:
+        print(f"ERROR: An unexpected error occurred while loading the stamp file: {e}")
         destroy()
         return
 
@@ -204,7 +204,6 @@ def firstPage(fpage):
         signFlag = False
     else:
         print("No stamp")
-    return
 
 
 # Function: signedPage
@@ -284,8 +283,8 @@ def signedPage(spage):
                 ),
                 cv.COLOR_BGR2RGB,
             )  # Open the known bad signature image
-        except:
-            print("ERROR: Signature file is incorrect, maybe name is wrong?")
+        except Exception as e:
+            print(f"ERROR: An unexpected error occurred while loading the signature file: {e}")
             destroy()
             return
 
@@ -306,7 +305,6 @@ def signedPage(spage):
         else:
             print("No signature match")
             finalSign = "(D)"
-    return
 
 
 # Function: destroy
@@ -332,7 +330,6 @@ def destroy():
     finalDoc = ""
     finalSign = ""
     finalDate = time.strftime("%Y-%m-%d")
-    return
 
 
 # Function: file_rename
@@ -345,8 +342,8 @@ def fileRename(newFile):
         pages = pdf2image.convert_from_path(
             pathToWatch + "\\" + newFile, 500, last_page=5
         )  # Convert the pdf to images
-    except:
-        print("ERROR: File is corrupted")
+    except Exception as e:
+        print(f"ERROR: File is corrupted: {e}")
         src = pathToWatch + "\\" + newFile
         des = pathToWatch + "\\" + newFile + " (CORRUPT).pdf"
         os.rename(src, des)
@@ -359,11 +356,11 @@ def fileRename(newFile):
     ):  # If the client and document type are not found on the first page, the signature page is not needed
         try:
             signedPage(pages[pageNumber])
-        except:
+        except Exception as e:
             try:
                 signedPage(pages[0])
-            except:
-                print("ERROR: Index for signature page is out of range")
+            except Exception as e:
+                print(f"ERROR: Index for signature page is out of range: {e}" )
                 destroy()
                 return
 
@@ -382,8 +379,8 @@ def fileRename(newFile):
             os.rename(src, des)  # Rename the file
             destroy()
             return
-        except:
-            print("ERROR: File already exists")
+        except Exception as e:
+            print(f"ERROR: File already exists: {e}")
             src = pathToWatch + "\\" + newFile
             des = src.replace(".pdf", " (EXISTS).pdf")
             os.rename(
@@ -394,4 +391,3 @@ def fileRename(newFile):
     else:  # If the client and document type are not found, the file cannot be renamed
         print("File not renamed")
         destroy()
-        return

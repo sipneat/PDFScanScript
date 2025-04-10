@@ -1,7 +1,7 @@
 import os
 import time
 import threading
-from functions import *
+from functions import fileRename
 from dotenv import load_dotenv
 from collections import deque
 
@@ -34,7 +34,6 @@ def fileWatch():
     print("Watching " + pathToWatch + " for changes")
     old = os.listdir(pathToWatch)  # Get original list of files in directory
     print(old)
-    new = old
     count = 0
     while 1:
         new = os.listdir(pathToWatch)  # Get list of files in directory
@@ -65,13 +64,11 @@ def fileWatch():
                 new = os.listdir(pathToWatch)
                 old = new
                 time.sleep(2)
-                continue
             else:  # If file is not a pdf, do nothing
                 print("Not a pdf")
                 new = os.listdir(pathToWatch)
                 old = new
                 time.sleep(2)
-                continue
         else:  # If number of files has not changed, do nothing
             count += 1
             if count > 720:  # If no changes for 1 hour, print "No Changes"
